@@ -72,7 +72,7 @@ class Ship extends React.Component {
                                     dir:state.v1.dir
                                 },
                                 v2: {
-                                    spd:(state.v2.spd > 0) ? state.v2.spd -1: state.v2.spd,
+                                    spd:(state.v2.spd > 0) ? state.v2.spd - 1: state.v2.spd,
                                     dir:state.v2.dir
                                 }
                                 
@@ -121,19 +121,22 @@ class Ship extends React.Component {
         return { 
             v1: {dir:new_orientation, spd:0},
             rotating_left: true, 
-            v2: (state.v1.spd !== 0 ) ? {...state.v1} : {...state.v2}
+            v2: state.result
         }
     }
 
 
-    calculateVectorDirection(v1,v2) {
+    getOppAdj(v1,v2) {
         let adj = 0;
         adj += Math.cos(this.degrees_to_radians(v1.dir)) * v1.spd;
         adj += Math.cos(this.degrees_to_radians(v2.dir)) * v2.spd;
         let opp = 0;
         opp += Math.sin(this.degrees_to_radians(v1.dir)) * v1.spd;
         opp += Math.sin(this.degrees_to_radians(v2.dir)) * v2.spd;
-
+        return {opp,adj}
+    }
+    calculateVectorDirection(v1,v2) {
+        let {opp,adj} = this.getOppAdj(v1,v2)
         let dir = this.radians_to_degrees(Math.atan2(opp,adj));
         if (Math.abs(dir)!==dir) {
             dir = 360 + dir
@@ -141,22 +144,13 @@ class Ship extends React.Component {
         return dir;
     }
     calculateVectorMag(v1,v2) {
-        let adj = 0;
-        adj += Math.cos(this.degrees_to_radians(v1.dir)) * v1.spd;
-        adj += Math.cos(this.degrees_to_radians(v2.dir)) * v2.spd;
-        let opp = 0;
-        opp += Math.sin(this.degrees_to_radians(v1.dir)) * v1.spd;
-        opp += Math.sin(this.degrees_to_radians(v2.dir)) * v2.spd;
-
+        let {opp,adj} = this.getOppAdj(v1,v2)
         let mag = Math.sqrt(opp**2 + adj**2);
         return mag;
     }
     radians_to_degrees(radians) {
         var pi = Math.PI;
         var deg = radians * (180 / pi)
-        // if (deg !== Math.abs(deg)) { //if deg == neg
-        //     deg += 180
-        // }
         return deg;
     }
     degrees_to_radians(degrees) {
